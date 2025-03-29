@@ -23,3 +23,12 @@ Run the following command to compile adn flash your firmware:
 ```bash
 qmk compile -kb keychron/q3/ansi_encoder -km sungho_keymap
 qmk flash -kb keychron/q3/ansi_encoder -km sungho_keymap
+```
+
+## Update Firmware from qmk/qmk_firmware
+```bash
+git fetch upstream
+git checkout master
+git merge upstream/master
+git push origin master
+```

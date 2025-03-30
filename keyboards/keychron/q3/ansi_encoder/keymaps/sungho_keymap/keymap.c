@@ -16,6 +16,7 @@
 #include QMK_KEYBOARD_H
 #include "tap_dance.h"
 #include "layers.h"
+#include "layer_rgb.c"
 
 #define KC_GPT LGUI(LCTL(KC_A))     // ChatGPT
 #define KC_CRSR LGUI(LCTL(KC_W))    // Cursor

@@ -13,20 +13,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 #include QMK_KEYBOARD_H
-#define KC_SLEEP_MAC LGUI(LCTL(KC_S))
+#include "tap_dance.h"
+#include "layers.h"
 
-enum layers{
-    MAC_BASE,
-    MAC_FN,
-    WIN_BASE,
-    WIN_FN
-};
+#define KC_GPT LGUI(LCTL(KC_A))     // ChatGPT
+#define KC_CRSR LGUI(LCTL(KC_W))    // Cursor
+#define KC_CHRM LGUI(LCTL(KC_B))    // Chrome
+
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [MAC_BASE] = LAYOUT_tkl_f13_ansi(
-        KC_ESC,   KC_BRID,  KC_BRIU,  KC_MCTL,  KC_LPAD,  KC_BRID,  KC_BRIU,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,  KC_F11,   KC_F12,     KC_MUTE,  KC_NO,    KC_NO,    KC_SLEEP_MAC,
+        KC_ESC,   KC_CHRM,  KC_F2,    KC_MCTL,  KC_LPAD,  KC_CRSR,  KC_GPT,   KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,  KC_F11,   KC_F12,     KC_MUTE,  KC_NO,    KC_NO,    TD(TD_SLP),
         KC_GRV,   KC_1,     KC_2,     KC_3,     KC_4,     KC_5,     KC_6,     KC_7,     KC_8,     KC_9,     KC_0,     KC_MINS,  KC_EQL,     KC_BSPC,  KC_INS,   KC_HOME,  KC_PGUP,
         KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_LBRC,  KC_RBRC,    KC_BSLS,  KC_DEL,   KC_END,   KC_PGDN,
         KC_CAPS,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,     KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,              KC_ENT,
@@ -34,7 +32,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_LCTL,  KC_LOPT,  KC_LCMD,                                KC_SPC,                                 KC_RCMD,  KC_ROPT,  MO(MAC_FN), KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT),
 
     [MAC_FN] = LAYOUT_tkl_f13_ansi(
-        _______,  KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_VOLD,  KC_VOLU,     RM_TOGG,  _______,  _______,  RM_TOGG,
+        _______,  KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_VOLD,  KC_VOLU,    RM_TOGG,  _______,  QK_BOOT,  _______,
         _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,    _______,  _______,  _______,  _______,
         RM_TOGG,  RM_NEXT,  RM_VALU,  RM_HUEU,  RM_SATU,  RM_SPDU,  _______,  _______,  _______,  _______,  _______,  _______,  _______,    _______,  _______,  _______,  _______,
         _______,  RM_PREV,  RM_VALD,  RM_HUED,  RM_SATD,  RM_SPDD,  _______,  _______,  _______,  _______,  _______,  _______,              _______,
@@ -58,6 +56,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,  _______,  _______,                                _______,                                _______,  _______,  _______,    _______,  _______,  _______,  _______),
 };
 
+// ENCODER_MAP_ENABLE
 #if defined(ENCODER_MAP_ENABLE)
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [MAC_BASE] = {ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
@@ -65,4 +64,4 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [WIN_BASE] = {ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
     [WIN_FN]   = {ENCODER_CCW_CW(RM_VALD, RM_VALU) }
 };
-#endif // ENCODER_MAP_ENABLE
+#endif

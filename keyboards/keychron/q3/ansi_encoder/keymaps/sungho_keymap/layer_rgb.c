@@ -23,3 +23,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return true;
 }
+
+void suspend_power_down_user(void) {
+    rgb_matrix_set_color_all(0, 0, 0);
+}
+
+void suspend_wakeup_init_user(void) {
+    rgb_matrix_mode_noeeprom(DEFAULT_RGB_MODE);
+}

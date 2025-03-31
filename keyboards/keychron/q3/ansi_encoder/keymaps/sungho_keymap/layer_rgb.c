@@ -1,23 +1,25 @@
 #include "rgb_matrix.h"
 
-static uint8_t saved_rgb_mode;
-static uint8_t saved_rgb_hue;
-static uint8_t saved_rgb_sat;
-static uint8_t saved_rgb_val;
+static uint8_t keys_pressed = 0;
+#define DEFAULT_RGB_MODE RGB_MATRIX_JELLYBEAN_RAINDROPS
 
-layer_state_t layer_state_set_user(layer_state_t state) {
-    if (get_highest_layer(state) == MAC_FN) {
-        saved_rgb_mode = rgb_matrix_get_mode();
-        HSV hsv = rgb_matrix_get_hsv();
-        saved_rgb_hue = hsv.h;
-        saved_rgb_sat = hsv.s;
-        saved_rgb_val = hsv.v;
+void keyboard_post_init_user(void) {
+    rgb_matrix_mode_noeeprom(DEFAULT_RGB_MODE);
+}
 
-        rgb_matrix_mode_noeeprom(RGB_MATRIX_SOLID_COLOR);
-        rgb_matrix_sethsv_noeeprom(234, 255, 255); // Pink
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (record->event.pressed) {
+        if (keys_pressed == 0) {
+            rgb_matrix_mode_noeeprom(RGB_MATRIX_SOLID_MULTISPLASH);
+        }
+        keys_pressed++;
     } else {
-        rgb_matrix_mode_noeeprom(saved_rgb_mode);
-        rgb_matrix_sethsv_noeeprom(saved_rgb_hue, saved_rgb_sat, saved_rgb_val);
+        if (keys_pressed > 0) {
+            keys_pressed--;
+            if (keys_pressed == 0) {
+                rgb_matrix_mode_noeeprom(DEFAULT_RGB_MODE);
+            }
+        }
     }
-    return state;
+    return true;
 }

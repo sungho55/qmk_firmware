@@ -18,6 +18,7 @@
 #include "layers.h"
 #include "layer_rgb.c"
 #include "custom_keycodes.h"
+#include "combos.h"
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [MAC_BASE] = LAYOUT_tkl_f13_ansi(

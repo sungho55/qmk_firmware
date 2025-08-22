@@ -64,6 +64,10 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 };
 #endif
 
+void keyboard_post_init_user(void) {
+    rgb_matrix_mode_noeeprom(RGB_MATRIX_JELLYBEAN_RAINDROPS);
+}
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (!process_macos_keys(keycode, record)) {
         return false;

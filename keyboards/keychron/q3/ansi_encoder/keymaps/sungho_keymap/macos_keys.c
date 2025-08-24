@@ -41,6 +41,20 @@ static bool handle_ctrl_grave(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
+static bool handle_super_arrows(uint16_t keycode, keyrecord_t *record) {
+    // Handle SUPER+Arrow first (word navigation)
+    if ((keycode == KC_LEFT || keycode == KC_RGHT) && (get_mods() & MOD_BIT(KC_LWIN)) && !(get_mods() & MOD_BIT(KC_LCTL))) {
+        if (record->event.pressed) {
+            // Send CTRL+Arrow for word navigation, but temporarily
+            del_mods(MOD_BIT(KC_LWIN));
+            tap_code16(LCTL(keycode));
+            add_mods(MOD_BIT(KC_LWIN));
+        }
+        return false;
+    }
+    return true;
+}
+
 static bool handle_ctrl_arrows(uint16_t keycode, keyrecord_t *record) {
     if (get_mods() & MOD_BIT(KC_LCTL)) {
         if (keycode == KC_LEFT && record->event.pressed) {
@@ -67,7 +81,6 @@ static bool handle_ctrl_arrows(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
-
 static bool handle_ctrl_release(uint16_t keycode, keyrecord_t *record) {
     if (keycode == KC_LCTL && !record->event.pressed) {
         if (ctrl_tab_active) {
@@ -87,6 +100,7 @@ static bool handle_ctrl_release(uint16_t keycode, keyrecord_t *record) {
 bool process_macos_keys(uint16_t keycode, keyrecord_t *record) {
     if (!handle_ctrl_tab(keycode, record)) return false;
     if (!handle_ctrl_grave(keycode, record)) return false;
+    if (!handle_super_arrows(keycode, record)) return false;
     if (!handle_ctrl_arrows(keycode, record)) return false;
     if (!handle_ctrl_release(keycode, record)) return false;
     return true;

@@ -93,6 +93,18 @@ static bool handle_ctrl_shift_4(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
+static bool handle_super_c(uint16_t keycode, keyrecord_t *record) {
+    if (keycode == KC_C && (get_mods() & MOD_BIT(KC_LWIN)) && !(get_mods() & (MOD_BIT(KC_LCTL) | MOD_BIT(KC_LSFT)))) {
+        if (record->event.pressed) {
+            del_mods(MOD_BIT(KC_LWIN));
+            tap_code16(LCTL(KC_C));
+            add_mods(MOD_BIT(KC_LWIN));
+        }
+        return false;
+    }
+    return true;
+}
+
 static bool handle_ctrl_release(uint16_t keycode, keyrecord_t *record) {
     if (keycode == KC_LCTL && !record->event.pressed) {
         if (ctrl_tab_active) {
@@ -115,6 +127,7 @@ bool process_macos_keys(uint16_t keycode, keyrecord_t *record) {
     if (!handle_super_arrows(keycode, record)) return false;
     if (!handle_ctrl_arrows(keycode, record)) return false;
     if (!handle_ctrl_shift_4(keycode, record)) return false;
+    if (!handle_super_c(keycode, record)) return false;
     if (!handle_ctrl_release(keycode, record)) return false;
     return true;
 }

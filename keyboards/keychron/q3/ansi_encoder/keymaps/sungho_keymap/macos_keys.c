@@ -105,6 +105,16 @@ static bool handle_super_c(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
+static bool handle_caps_lock(uint16_t keycode, keyrecord_t *record) {
+    if (keycode == KC_CAPS) {
+        if (record->event.pressed) {
+            tap_code16(LGUI(KC_SPC));
+        }
+        return false;
+    }
+    return true;
+}
+
 static bool handle_ctrl_release(uint16_t keycode, keyrecord_t *record) {
     if (keycode == KC_LCTL && !record->event.pressed) {
         if (ctrl_tab_active) {
@@ -128,6 +138,7 @@ bool process_macos_keys(uint16_t keycode, keyrecord_t *record) {
     if (!handle_ctrl_arrows(keycode, record)) return false;
     if (!handle_ctrl_shift_4(keycode, record)) return false;
     if (!handle_super_c(keycode, record)) return false;
+    if (!handle_caps_lock(keycode, record)) return false;
     if (!handle_ctrl_release(keycode, record)) return false;
     return true;
 }

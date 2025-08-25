@@ -105,6 +105,34 @@ static bool handle_super_c(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
+static bool handle_shift_space(uint16_t keycode, keyrecord_t *record) {
+    if (keycode == KC_SPC && (get_mods() & (MOD_BIT(KC_LSFT) | MOD_BIT(KC_RSFT)))) {
+        if (record->event.pressed) {
+            // Store current modifiers, remove shift, send SPACE, restore modifiers
+            uint8_t saved_mods = get_mods();
+            clear_mods();
+            tap_code(KC_SPC);
+            set_mods(saved_mods);
+        }
+        return false;
+    }
+    return true;
+}
+
+static bool handle_ctrl_space(uint16_t keycode, keyrecord_t *record) {
+    if (keycode == KC_SPC && (get_mods() & MOD_BIT(KC_LCTL)) && !(get_mods() & (MOD_BIT(KC_LSFT) | MOD_BIT(KC_RSFT)))) {
+        if (record->event.pressed) {
+            // Send Windows key to open Start menu
+            uint8_t saved_mods = get_mods();
+            clear_mods();
+            tap_code(KC_LWIN);
+            set_mods(saved_mods);
+        }
+        return false;
+    }
+    return true;
+}
+
 static bool handle_caps_lock(uint16_t keycode, keyrecord_t *record) {
     if (keycode == KC_CAPS) {
         if (record->event.pressed) {
@@ -132,12 +160,19 @@ static bool handle_ctrl_release(uint16_t keycode, keyrecord_t *record) {
 }
 
 bool process_macos_keys(uint16_t keycode, keyrecord_t *record) {
+    // Only process macOS keys when WIN_BASE is the default layer
+    if (get_highest_layer(default_layer_state) != WIN_BASE) {
+        return true;
+    }
+    
     if (!handle_ctrl_tab(keycode, record)) return false;
     if (!handle_ctrl_grave(keycode, record)) return false;
     if (!handle_super_arrows(keycode, record)) return false;
     if (!handle_ctrl_arrows(keycode, record)) return false;
     if (!handle_ctrl_shift_4(keycode, record)) return false;
     if (!handle_super_c(keycode, record)) return false;
+    if (!handle_ctrl_space(keycode, record)) return false;
+    if (!handle_shift_space(keycode, record)) return false;
     if (!handle_caps_lock(keycode, record)) return false;
     if (!handle_ctrl_release(keycode, record)) return false;
     return true;

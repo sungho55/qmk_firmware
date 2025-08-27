@@ -41,9 +41,34 @@ static bool handle_ctrl_grave(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
+static bool shift_super_active = false;
+
+static bool handle_super_key_with_shift(uint16_t keycode, keyrecord_t *record) {
+    // Handle SUPER key press/release when SHIFT is held
+    if (keycode == KC_LWIN) {
+        if (record->event.pressed && (get_mods() & (MOD_BIT(KC_LSFT) | MOD_BIT(KC_RSFT)))) {
+            // SHIFT is held and SUPER is pressed - suppress SUPER and mark as active
+            shift_super_active = true;
+            return false;
+        }
+        if (!record->event.pressed && shift_super_active) {
+            // SUPER is released while shift_super_active - suppress release
+            shift_super_active = false;
+            return false;
+        }
+    }
+    
+    // Reset shift_super_active when SHIFT is released
+    if ((keycode == KC_LSFT || keycode == KC_RSFT) && !record->event.pressed && shift_super_active) {
+        shift_super_active = false;
+    }
+    
+    return true;
+}
+
 static bool handle_super_arrows(uint16_t keycode, keyrecord_t *record) {
     // Handle SUPER+Up/Down for moving lines (Option+Up/Down in VS Code)
-    if ((keycode == KC_UP || keycode == KC_DOWN) && (get_mods() & MOD_BIT(KC_LWIN)) && !(get_mods() & MOD_BIT(KC_LCTL))) {
+    if ((keycode == KC_UP || keycode == KC_DOWN) && ((get_mods() & MOD_BIT(KC_LWIN)) || shift_super_active) && !(get_mods() & MOD_BIT(KC_LCTL))) {
         if (record->event.pressed) {
             uint8_t saved_mods = get_mods();
             bool shift_held = saved_mods & (MOD_BIT(KC_LSFT) | MOD_BIT(KC_RSFT));
@@ -59,7 +84,7 @@ static bool handle_super_arrows(uint16_t keycode, keyrecord_t *record) {
     }
     
     // Handle SUPER+Left/Right for word navigation
-    if ((keycode == KC_LEFT || keycode == KC_RGHT) && (get_mods() & MOD_BIT(KC_LWIN)) && !(get_mods() & MOD_BIT(KC_LCTL))) {
+    if ((keycode == KC_LEFT || keycode == KC_RGHT) && ((get_mods() & MOD_BIT(KC_LWIN)) || shift_super_active) && !(get_mods() & MOD_BIT(KC_LCTL))) {
         if (record->event.pressed) {
             uint8_t saved_mods = get_mods();
             bool shift_held = saved_mods & (MOD_BIT(KC_LSFT) | MOD_BIT(KC_RSFT));
@@ -199,6 +224,7 @@ bool process_macos_keys(uint16_t keycode, keyrecord_t *record) {
         return true;
     }
     
+    if (!handle_super_key_with_shift(keycode, record)) return false;
     if (!handle_ctrl_tab(keycode, record)) return false;
     if (!handle_ctrl_grave(keycode, record)) return false;
     if (!handle_super_arrows(keycode, record)) return false;

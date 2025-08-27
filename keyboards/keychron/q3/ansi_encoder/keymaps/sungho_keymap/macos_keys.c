@@ -45,10 +45,15 @@ static bool handle_super_arrows(uint16_t keycode, keyrecord_t *record) {
     // Handle SUPER+Up/Down for moving lines (Option+Up/Down in VS Code)
     if ((keycode == KC_UP || keycode == KC_DOWN) && (get_mods() & MOD_BIT(KC_LWIN)) && !(get_mods() & MOD_BIT(KC_LCTL))) {
         if (record->event.pressed) {
-            // Send Option+Arrow for line movement
-            del_mods(MOD_BIT(KC_LWIN));
-            tap_code16(LALT(keycode));
-            add_mods(MOD_BIT(KC_LWIN));
+            uint8_t saved_mods = get_mods();
+            bool shift_held = saved_mods & (MOD_BIT(KC_LSFT) | MOD_BIT(KC_RSFT));
+            clear_mods();
+            if (shift_held) {
+                tap_code16(LSFT(LALT(keycode)));
+            } else {
+                tap_code16(LALT(keycode));
+            }
+            set_mods(saved_mods);
         }
         return false;
     }
@@ -56,10 +61,15 @@ static bool handle_super_arrows(uint16_t keycode, keyrecord_t *record) {
     // Handle SUPER+Left/Right for word navigation
     if ((keycode == KC_LEFT || keycode == KC_RGHT) && (get_mods() & MOD_BIT(KC_LWIN)) && !(get_mods() & MOD_BIT(KC_LCTL))) {
         if (record->event.pressed) {
-            // Send CTRL+Arrow for word navigation, but temporarily
-            del_mods(MOD_BIT(KC_LWIN));
-            tap_code16(LCTL(keycode));
-            add_mods(MOD_BIT(KC_LWIN));
+            uint8_t saved_mods = get_mods();
+            bool shift_held = saved_mods & (MOD_BIT(KC_LSFT) | MOD_BIT(KC_RSFT));
+            clear_mods();
+            if (shift_held) {
+                tap_code16(LSFT(LCTL(keycode)));
+            } else {
+                tap_code16(LCTL(keycode));
+            }
+            set_mods(saved_mods);
         }
         return false;
     }

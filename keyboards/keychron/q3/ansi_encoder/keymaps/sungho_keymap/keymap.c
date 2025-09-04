@@ -19,7 +19,6 @@
 #include "custom_keycodes.h"
 #include "combos.h"
 #include "macos_keys.c"
-#include "claude_keys.c"
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [MAC_BASE] = LAYOUT_tkl_f13_ansi(
@@ -72,10 +71,6 @@ void keyboard_post_init_user(void) {
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (!process_macos_keys(keycode, record)) {
         return false;
-    }
-    if (!process_claude_keys(keycode, record)) {
-        return false;
-    }
-    
+    }    
     return true;
 }

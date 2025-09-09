@@ -42,25 +42,43 @@ static bool handle_ctrl_grave(uint16_t keycode, keyrecord_t *record) {
 }
 
 static bool shift_super_active = false;
+static bool super_pressed_alone = false;
 
 static bool handle_super_key_with_shift(uint16_t keycode, keyrecord_t *record) {
-    // Handle SUPER key press/release when SHIFT is held
+    // Handle SUPER key press/release
     if (keycode == KC_LWIN) {
-        if (record->event.pressed && (get_mods() & (MOD_BIT(KC_LSFT) | MOD_BIT(KC_RSFT)))) {
-            // SHIFT is held and SUPER is pressed - suppress SUPER and mark as active
-            shift_super_active = true;
-            return false;
-        }
-        if (!record->event.pressed && shift_super_active) {
-            // SUPER is released while shift_super_active - suppress release
-            shift_super_active = false;
-            return false;
+        if (record->event.pressed) {
+            if (get_mods() & (MOD_BIT(KC_LSFT) | MOD_BIT(KC_RSFT))) {
+                // SHIFT is held and SUPER is pressed - suppress SUPER and mark as active
+                shift_super_active = true;
+                super_pressed_alone = false;
+                return false;
+            } else {
+                // SUPER pressed without SHIFT
+                super_pressed_alone = true;
+            }
+        } else {
+            // SUPER is being released
+            if (shift_super_active) {
+                // Reset state and allow SUPER release
+                shift_super_active = false;
+                return true;
+            }
+            if (super_pressed_alone) {
+                // SUPER was pressed alone, allow normal release
+                super_pressed_alone = false;
+                return true;
+            }
         }
     }
     
-    // Reset shift_super_active when SHIFT is released
-    if ((keycode == KC_LSFT || keycode == KC_RSFT) && !record->event.pressed && shift_super_active) {
-        shift_super_active = false;
+    // Handle SHIFT press/release
+    if (keycode == KC_LSFT || keycode == KC_RSFT) {
+        if (record->event.pressed && super_pressed_alone) {
+            // SHIFT pressed while SUPER is already held - activate shift_super mode
+            shift_super_active = true;
+            super_pressed_alone = false;
+        }
     }
     
     return true;
@@ -68,7 +86,7 @@ static bool handle_super_key_with_shift(uint16_t keycode, keyrecord_t *record) {
 
 static bool handle_super_arrows(uint16_t keycode, keyrecord_t *record) {
     // Handle SUPER+Up/Down for moving lines (Option+Up/Down in VS Code)
-    if ((keycode == KC_UP || keycode == KC_DOWN) && ((get_mods() & MOD_BIT(KC_LWIN)) || shift_super_active) && !(get_mods() & MOD_BIT(KC_LCTL))) {
+    if ((keycode == KC_UP || keycode == KC_DOWN) && ((get_mods() & MOD_BIT(KC_LWIN)) || shift_super_active || super_pressed_alone) && !(get_mods() & MOD_BIT(KC_LCTL))) {
         if (record->event.pressed) {
             uint8_t saved_mods = get_mods();
             bool shift_held = saved_mods & (MOD_BIT(KC_LSFT) | MOD_BIT(KC_RSFT));
@@ -78,13 +96,14 @@ static bool handle_super_arrows(uint16_t keycode, keyrecord_t *record) {
             } else {
                 tap_code16(LALT(keycode));
             }
-            set_mods(saved_mods);
+            // Always exclude SUPER from restored modifiers to prevent it from staying pressed
+            set_mods(saved_mods & ~MOD_BIT(KC_LWIN));
         }
         return false;
     }
     
     // Handle SUPER+Left/Right for word navigation
-    if ((keycode == KC_LEFT || keycode == KC_RGHT) && ((get_mods() & MOD_BIT(KC_LWIN)) || shift_super_active) && !(get_mods() & MOD_BIT(KC_LCTL))) {
+    if ((keycode == KC_LEFT || keycode == KC_RGHT) && ((get_mods() & MOD_BIT(KC_LWIN)) || shift_super_active || super_pressed_alone) && !(get_mods() & MOD_BIT(KC_LCTL))) {
         if (record->event.pressed) {
             uint8_t saved_mods = get_mods();
             bool shift_held = saved_mods & (MOD_BIT(KC_LSFT) | MOD_BIT(KC_RSFT));
@@ -94,7 +113,8 @@ static bool handle_super_arrows(uint16_t keycode, keyrecord_t *record) {
             } else {
                 tap_code16(LCTL(keycode));
             }
-            set_mods(saved_mods);
+            // Always exclude SUPER from restored modifiers to prevent it from staying pressed
+            set_mods(saved_mods & ~MOD_BIT(KC_LWIN));
         }
         return false;
     }
